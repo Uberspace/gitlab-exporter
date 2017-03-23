@@ -18,6 +18,9 @@ class GitlabWebhookHandler(BaseHTTPRequestHandler):
             self.send_error(401, 'Unauthorized: secret token invalid')
             return False
 
+    def _receive_data(self, data):
+        raise NotImplementedException()
+
     def do_POST(self):
         if not self._authorize():
             return
@@ -26,5 +29,21 @@ class GitlabWebhookHandler(BaseHTTPRequestHandler):
         output = StringIO()
         content_len = int(self.headers.getheader('content-length', 0))
         post_body = self.rfile.read(content_len)
-        post_json = json.loads(post_body)
+        post_data = json.loads(post_body)
+        self._receive_data(post_data)
         return output
+
+
+def handle_gitlab_hooks(callback, port=8000):
+
+    class CallbackWrapper(GitlabWebhookHandler):
+
+        def _receive_data(self, data):
+            callback(data)
+
+    import SocketServer
+
+    httpd = SocketServer.TCPServer(("", port), CallbackWrapper)
+
+    print "serving at port", port
+    httpd.serve_forever()

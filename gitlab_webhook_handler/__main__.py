@@ -1,11 +1,4 @@
-from gitlab_webhook_handler import GitlabWebhookHandler
-import SocketServer
+from __future__ import print_function
+from gitlab_webhook_handler import handle_gitlab_hooks
 
-PORT = 8000
-
-Handler = GitlabWebhookHandler
-
-httpd = SocketServer.TCPServer(("", PORT), Handler)
-
-print "serving at port", PORT
-httpd.serve_forever()
+handle_gitlab_hooks(print)
