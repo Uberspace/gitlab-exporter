@@ -41,9 +41,12 @@ def handle_gitlab_hooks(callback, port=8000):
         def _receive_data(self, data):
             callback(data)
 
-    import SocketServer
+    from SocketServer import TCPServer
+    import socket
+    class IPv6TCPServer(TCPServer):
+        address_family = socket.AF_INET6
 
-    httpd = SocketServer.TCPServer(("", port), CallbackWrapper)
+    httpd = IPv6TCPServer(("", port), CallbackWrapper)
 
     print "serving at port", port
     httpd.serve_forever()
